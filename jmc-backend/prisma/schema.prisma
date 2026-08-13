@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model activities {
+  id                               BigInt    @id @default(autoincrement())
+  title                            String?   @db.VarChar(255)
+  content                          String?   @db.MediumText
+  ua                               String?   @db.VarChar(256)
+  ip                               String?   @db.VarChar(64)
+  url                              String?   @db.Text
+  browser                          String?   @db.VarChar(64)
+  platform                         String?   @db.VarChar(64)
+  created_at                       DateTime? @db.DateTime(0)
+  updated_at                       DateTime? @db.DateTime(0)
+  created_by                       Int?
+  updated_by                       Int?
+  user_activities_created_byTouser user?     @relation("activities_created_byTouser", fields: [created_by], references: [id], map: "fk_activities_created")
+  user_activities_updated_byTouser user?     @relation("activities_updated_byTouser", fields: [updated_by], references: [id], map: "fk_activities_updated")
+
+  @@index([created_by], map: "fk_activities_created")
+  @@index([updated_by], map: "fk_activities_updated")
+}
+
+model master_data {
+  id                                         Int       @id @default(autoincrement())
+  nama                                       String?   @db.VarChar(100)
+  tipe                                       String?   @db.VarChar(50)
+  pegawai_pegawai_id_departemenTomaster_data pegawai[] @relation("pegawai_id_departemenTomaster_data")
+  pegawai_pegawai_id_jabatanTomaster_data    pegawai[] @relation("pegawai_id_jabatanTomaster_data")
+}
+
+model master_wilayah {
+  id        Int       @id @default(autoincrement())
+  kecamatan String?   @db.VarChar(100)
+  kabupaten String?   @db.VarChar(100)
+  provinsi  String?   @db.VarChar(100)
+  pegawai   pegawai[]
+
+  @@index([kecamatan], map: "idx_kecamatan")
+}
+
+model pegawai {
+  id                                             Int                   @id @default(autoincrement())
+  foto_pegawai                                   String?               @db.VarChar(255)
+  nip                                            String?               @unique(map: "nip") @db.VarChar(30)
+  nama_pegawai                                   String?               @db.VarChar(255)
+  email                                          String?               @unique(map: "email") @db.VarChar(255)
+  nomor_hp                                       String?               @db.VarChar(20)
+  tempat_lahir                                   String?               @db.VarChar(100)
+  id_kecamatan                                   Int?
+  alamat_lengkap                                 String?               @db.Text
+  jarak_rumah_kantor                             Int?                  @db.TinyInt
+  tanggal_lahir                                  DateTime?             @db.Date
+  status_kawin                                   pegawai_status_kawin?
+  jumlah_anak                                    Int?                  @default(0) @db.TinyInt
+  tanggal_masuk                                  DateTime?             @db.Date
+  id_jabatan                                     Int?
+  id_departemen                                  Int?
+  usia                                           Int?
+  status                                         pegawai_status?       @default(Aktif)
+  created_at                                     DateTime?             @default(now()) @db.Timestamp(0)
+  updated_at                                     DateTime?             @default(now()) @db.Timestamp(0)
+  master_data_pegawai_id_departemenTomaster_data master_data?          @relation("pegawai_id_departemenTomaster_data", fields: [id_departemen], references: [id], onDelete: Restrict, map: "fk_pegawai_departemen")
+  master_data_pegawai_id_jabatanTomaster_data    master_data?          @relation("pegawai_id_jabatanTomaster_data", fields: [id_jabatan], references: [id], onDelete: Restrict, map: "fk_pegawai_jabatan")
+  master_wilayah                                 master_wilayah?       @relation(fields: [id_kecamatan], references: [id], onDelete: Restrict, map: "fk_pegawai_kecamatan")
+  pegawai_pendidikan                             pegawai_pendidikan[]
+  user                                           user[]
+
+  @@index([id_departemen], map: "fk_pegawai_departemen")
+  @@index([id_jabatan], map: "fk_pegawai_jabatan")
+  @@index([id_kecamatan], map: "fk_pegawai_kecamatan")
+}
+
+model pegawai_pendidikan {
+  id                 Int      @id @default(autoincrement())
+  id_pegawai         Int?
+  tingkat_pendidikan String?  @db.VarChar(50)
+  nama_sekolah       String?  @db.VarChar(255)
+  tahun_lulus        Int?     @db.Year
+  pegawai            pegawai? @relation(fields: [id_pegawai], references: [id], onDelete: Cascade, map: "fk_pendidikan_pegawai")
+
+  @@index([id_pegawai], map: "fk_pendidikan_pegawai")
+}
+
+model role_permission {
+  id          Int                     @id @default(autoincrement())
+  id_role     Int?                    @db.SmallInt
+  modul_fitur String?                 @db.VarChar(100)
+  akses       Boolean?                @default(false)
+  create      Boolean?                @default(false)
+  read        role_permission_read?   @default(No)
+  update      role_permission_update? @default(No)
+  delete      role_permission_delete? @default(No)
+  user_role   user_role?              @relation(fields: [id_role], references: [id], onDelete: Cascade, map: "fk_permission_role")
+
+  @@index([id_role], map: "fk_permission_role")
+}
+
+model user {
+  id                                     Int          @id @default(autoincrement())
+  id_role                                Int?         @db.SmallInt
+  id_pegawai                             Int?
+  username                               String?      @unique(map: "username") @db.VarChar(100)
+  password_hash                          String?      @db.VarChar(255)
+  nama                                   String?      @db.VarChar(255)
+  email                                  String?      @db.VarChar(255)
+  last_session                           String?      @db.VarChar(255)
+  last_login                             DateTime?    @db.Timestamp(0)
+  updated_at                             DateTime?    @default(now()) @db.Timestamp(0)
+  created_at                             DateTime?    @default(now()) @db.Timestamp(0)
+  disabled                               Int?         @default(0) @db.TinyInt
+  activities_activities_created_byTouser activities[] @relation("activities_created_byTouser")
+  activities_activities_updated_byTouser activities[] @relation("activities_updated_byTouser")
+  pegawai                                pegawai?     @relation(fields: [id_pegawai], references: [id], map: "fk_user_pegawai")
+  user_role                              user_role?   @relation(fields: [id_role], references: [id], onDelete: Restrict, map: "user_ibfk_1")
+
+  @@index([id_pegawai], map: "fk_user_pegawai")
+  @@index([id_role], map: "user_ibfk_1")
+}
+
+model user_role {
+  id              Int               @id @default(autoincrement()) @db.SmallInt
+  nama_role       String?           @db.VarChar(100)
+  created_at      DateTime?         @default(now()) @db.Timestamp(0)
+  role_permission role_permission[]
+  user            user[]
+}
+
+enum role_permission_read {
+  All
+  Own
+  No
+}
+
+enum role_permission_update {
+  All
+  Own
+  No
+}
+
+enum role_permission_delete {
+  All
+  Own
+  No
+}
+
+enum pegawai_status_kawin {
+  kawin
+  tidak_kawin @map("tidak kawin")
+}
+
+enum pegawai_status {
+  Aktif
+  Nonaktif
+}
+// Tabel Setting Tunjangan
+model setting_tunjangan {
+  id                 Int      @id @default(autoincrement())
+  base_fare          Float
+  berlaku_mulai      DateTime
+  minimum_kilometer  Float
+  maximum_kilometer  Float
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+}
+
+// Tabel Hasil Perhitungan Tunjangan
+model tunjangan_transport {
+  id                  Int      @id @default(autoincrement())
+  id_pegawai          Int
+  bulan               String   // Contoh: "Agustus 2026"
+  tahun               Int
+  jarak_km            Float
+  jumlah_hari_masuk   Int
+  nominal_tunjangan   Float
+  created_at          DateTime @default(now())
+}

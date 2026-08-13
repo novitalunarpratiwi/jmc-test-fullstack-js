@@ -1,0 +1,10 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Environment Variables
+.env
+
+# OS / Editor
+.DS_Store
+.vscode/
