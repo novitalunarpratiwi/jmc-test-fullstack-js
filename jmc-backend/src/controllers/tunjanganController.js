@@ -1,11 +1,12 @@
 const prisma = require('../configs/prisma');
+const { logActivity } = require('../utils/logger');
 
 const hitungTunjangan = async (req, res) => {
   // data_kehadiran didapat dari input frontend, misal: [{ id_pegawai: 1, hari_masuk: 20 }]
   const { bulan, tahun, data_kehadiran } = req.body; 
 
   try {
-    // Ambil setting tarif tunjangan terbaru
+    // 1. Ambil setting tarif tunjangan terbaru
     const setting = await prisma.setting_tunjangan.findFirst({
       orderBy: { berlaku_mulai: 'desc' }
     });
@@ -16,7 +17,7 @@ const hitungTunjangan = async (req, res) => {
 
     const hasilPerhitungan = [];
 
-    // Loop tiap pegawai untuk dihitung
+    // 2. Loop tiap pegawai untuk dihitung
     for (const kehadiran of data_kehadiran) {
       const pegawai = await prisma.pegawai.findUnique({
         where: { id: kehadiran.id_pegawai }
@@ -51,11 +52,24 @@ const hitungTunjangan = async (req, res) => {
       });
     }
 
-    // Simpan hasil perhitungan ke database
+    // 3. Simpan hasil perhitungan ke database
     await prisma.tunjangan_transport.createMany({
       data: hasilPerhitungan
     });
 
+    // 4. Ambil userId dari token/sesi (biasanya disisipkan oleh middleware auth)
+    const userId = req.user ? req.user.id : 1; 
+
+    // 5. Catat aktivitas ke log
+    await logActivity(
+      userId, 
+      'CREATE', 
+      'Tunjangan Transport', 
+      `Menghitung tunjangan untuk periode ${bulan}/${tahun}`,
+      req.ip
+    );
+
+    // 6. Kirim respons sukses
     return res.status(200).json({
       status: 'success',
       message: 'Perhitungan tunjangan berhasil diproses',

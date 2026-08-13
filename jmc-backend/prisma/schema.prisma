@@ -181,3 +181,13 @@ model tunjangan_transport {
   nominal_tunjangan   Float
   created_at          DateTime @default(now())
 }
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id]) // Relasi ke tabel User
+  action    String   // Contoh: 'LOGIN', 'LOGOUT', 'CREATE', 'READ', 'UPDATE', 'DELETE'
+  module    String   // Contoh: 'Tunjangan Transport', 'Data Pegawai', 'Auth'
+  detail    String?  @db.Text // Penjelasan aksi (contoh: "Menghitung tunjangan bulan Januari 2026")
+  ipAddress String?  // (Opsional) Menyimpan IP user
+  createdAt DateTime @default(now()) // Waktu log otomatis tercatat
+}
