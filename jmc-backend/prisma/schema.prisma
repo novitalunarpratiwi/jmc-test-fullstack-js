@@ -8,31 +8,31 @@ datasource db {
 }
 
 model activities {
-  id                               BigInt    @id @default(autoincrement())
-  title                            String?   @db.VarChar(255)
-  content                          String?   @db.MediumText
-  ua                               String?   @db.VarChar(256)
-  ip                               String?   @db.VarChar(64)
-  url                              String?   @db.Text
-  browser                          String?   @db.VarChar(64)
-  platform                         String?   @db.VarChar(64)
-  created_at                       DateTime? @db.DateTime(0)
-  updated_at                       DateTime? @db.DateTime(0)
-  created_by                       Int?
-  updated_by                       Int?
-  user_activities_created_byTouser user?     @relation("activities_created_byTouser", fields: [created_by], references: [id], map: "fk_activities_created")
-  user_activities_updated_byTouser user?     @relation("activities_updated_byTouser", fields: [updated_by], references: [id], map: "fk_activities_updated")
+  id                                     BigInt    @id @default(autoincrement())
+  title                                  String?   @db.VarChar(255)
+  content                                String?   @db.MediumText
+  ua                                     String?   @db.VarChar(256)
+  ip                                     String?   @db.VarChar(64)
+  url                                    String?   @db.Text
+  browser                                String?   @db.VarChar(64)
+  platform                               String?   @db.VarChar(64)
+  created_at                             DateTime? @db.DateTime(0)
+  updated_at                             DateTime? @db.DateTime(0)
+  created_by                             Int?
+  updated_by                             Int?
+  user_activities_created_byTouser       user?     @relation("activities_created_byTouser", fields: [created_by], references: [id], map: "fk_activities_created")
+  user_activities_updated_byTouser       user?     @relation("activities_updated_byTouser", fields: [updated_by], references: [id], map: "fk_activities_updated")
 
   @@index([created_by], map: "fk_activities_created")
   @@index([updated_by], map: "fk_activities_updated")
 }
 
 model master_data {
-  id                                         Int       @id @default(autoincrement())
-  nama                                       String?   @db.VarChar(100)
-  tipe                                       String?   @db.VarChar(50)
-  pegawai_pegawai_id_departemenTomaster_data pegawai[] @relation("pegawai_id_departemenTomaster_data")
-  pegawai_pegawai_id_jabatanTomaster_data    pegawai[] @relation("pegawai_id_jabatanTomaster_data")
+  id                                          Int       @id @default(autoincrement())
+  nama                                        String?   @db.VarChar(100)
+  tipe                                        String?   @db.VarChar(50)
+  pegawai_pegawai_id_departemenTomaster_data  pegawai[] @relation("pegawai_id_departemenTomaster_data")
+  pegawai_pegawai_id_jabatanTomaster_data     pegawai[] @relation("pegawai_id_jabatanTomaster_data")
 }
 
 model master_wilayah {
@@ -103,22 +103,23 @@ model role_permission {
 }
 
 model user {
-  id                                     Int          @id @default(autoincrement())
-  id_role                                Int?         @db.SmallInt
+  id                                     Int            @id @default(autoincrement())
+  id_role                                Int?           @db.SmallInt
   id_pegawai                             Int?
-  username                               String?      @unique(map: "username") @db.VarChar(100)
-  password_hash                          String?      @db.VarChar(255)
-  nama                                   String?      @db.VarChar(255)
-  email                                  String?      @db.VarChar(255)
-  last_session                           String?      @db.VarChar(255)
-  last_login                             DateTime?    @db.Timestamp(0)
-  updated_at                             DateTime?    @default(now()) @db.Timestamp(0)
-  created_at                             DateTime?    @default(now()) @db.Timestamp(0)
-  disabled                               Int?         @default(0) @db.TinyInt
-  activities_activities_created_byTouser activities[] @relation("activities_created_byTouser")
-  activities_activities_updated_byTouser activities[] @relation("activities_updated_byTouser")
-  pegawai                                pegawai?     @relation(fields: [id_pegawai], references: [id], map: "fk_user_pegawai")
-  user_role                              user_role?   @relation(fields: [id_role], references: [id], onDelete: Restrict, map: "user_ibfk_1")
+  username                               String?        @unique(map: "username") @db.VarChar(100)
+  password_hash                          String?        @db.VarChar(255)
+  nama                                   String?        @db.VarChar(255)
+  email                                  String?        @db.VarChar(255)
+  last_session                           String?        @db.VarChar(255)
+  last_login                             DateTime?      @db.Timestamp(0)
+  updated_at                             DateTime?      @default(now()) @db.Timestamp(0)
+  created_at                             DateTime?      @default(now()) @db.Timestamp(0)
+  disabled                               Int?           @default(0) @db.TinyInt
+  activities_activities_created_byTouser activities[]   @relation("activities_created_byTouser")
+  activities_activities_updated_byTouser activities[]   @relation("activities_updated_byTouser")
+  pegawai                                pegawai?       @relation(fields: [id_pegawai], references: [id], map: "fk_user_pegawai")
+  user_role                              user_role?     @relation(fields: [id_role], references: [id], onDelete: Restrict, map: "user_ibfk_1")
+  ActivityLog                            ActivityLog[]  // <--- Tambahan agar relasi dua arah berfungsi
 
   @@index([id_pegawai], map: "fk_user_pegawai")
   @@index([id_role], map: "user_ibfk_1")
@@ -159,32 +160,34 @@ enum pegawai_status {
   Aktif
   Nonaktif
 }
+
 // Tabel Setting Tunjangan
 model setting_tunjangan {
-  id                 Int      @id @default(autoincrement())
-  base_fare          Float
-  berlaku_mulai      DateTime
-  minimum_kilometer  Float
-  maximum_kilometer  Float
-  created_at         DateTime @default(now())
-  updated_at         DateTime @updatedAt
+  id                Int      @id @default(autoincrement())
+  base_fare         Float
+  berlaku_mulai     DateTime
+  minimum_kilometer Float
+  maximum_kilometer Float
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
 }
 
 // Tabel Hasil Perhitungan Tunjangan
 model tunjangan_transport {
-  id                  Int      @id @default(autoincrement())
-  id_pegawai          Int
-  bulan               String   // Contoh: "Agustus 2026"
-  tahun               Int
-  jarak_km            Float
-  jumlah_hari_masuk   Int
-  nominal_tunjangan   Float
-  created_at          DateTime @default(now())
+  id                Int      @id @default(autoincrement())
+  id_pegawai        Int
+  bulan             String   // Contoh: "Agustus 2026"
+  tahun             Int
+  jarak_km          Float
+  jumlah_hari_masuk Int
+  nominal_tunjangan Float
+  created_at        DateTime @default(now())
 }
+
 model ActivityLog {
   id        Int      @id @default(autoincrement())
   userId    Int
-  user      user     @relation(fields: [userId], references: [id]) // Relasi ke tabel User
+  user      user     @relation(fields: [userId], references: [id]) // <--- Diperbaiki jadi huruf kecil 'user'
   action    String   // Contoh: 'LOGIN', 'LOGOUT', 'CREATE', 'READ', 'UPDATE', 'DELETE'
   module    String   // Contoh: 'Tunjangan Transport', 'Data Pegawai', 'Auth'
   detail    String?  @db.Text // Penjelasan aksi (contoh: "Menghitung tunjangan bulan Januari 2026")
