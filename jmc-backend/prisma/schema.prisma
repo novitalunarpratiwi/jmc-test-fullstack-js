@@ -187,6 +187,7 @@ model tunjangan_transport {
 model ActivityLog {
   id        Int      @id @default(autoincrement())
   userId    Int
+  
   user      user     @relation(fields: [userId], references: [id]) // <--- Diperbaiki jadi huruf kecil 'user'
   action    String   // Contoh: 'LOGIN', 'LOGOUT', 'CREATE', 'READ', 'UPDATE', 'DELETE'
   module    String   // Contoh: 'Tunjangan Transport', 'Data Pegawai', 'Auth'
