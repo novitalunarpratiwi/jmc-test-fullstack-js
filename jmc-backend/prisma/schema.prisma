@@ -184,7 +184,7 @@ model tunjangan_transport {
 model ActivityLog {
   id        Int      @id @default(autoincrement())
   userId    Int
-  user      User     @relation(fields: [userId], references: [id]) // Relasi ke tabel User
+  user      user     @relation(fields: [userId], references: [id]) // Relasi ke tabel User
   action    String   // Contoh: 'LOGIN', 'LOGOUT', 'CREATE', 'READ', 'UPDATE', 'DELETE'
   module    String   // Contoh: 'Tunjangan Transport', 'Data Pegawai', 'Auth'
   detail    String?  @db.Text // Penjelasan aksi (contoh: "Menghitung tunjangan bulan Januari 2026")
