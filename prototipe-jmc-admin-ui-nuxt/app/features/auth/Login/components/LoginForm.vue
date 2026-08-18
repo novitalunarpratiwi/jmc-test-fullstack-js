@@ -180,7 +180,7 @@ const handleSubmit = async () => {
 
   try {
     const response = await fetch(
-      "https://jmc-test-fullstack-js-4le5.vercel.app/api/auth/login",
+      "https://jmc-test-fullstack-js-4le5.vercel.app/api",
       {
         method: "POST",
         headers: {
