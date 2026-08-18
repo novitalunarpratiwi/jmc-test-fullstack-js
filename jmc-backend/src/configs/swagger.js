@@ -11,7 +11,7 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:5000',
+        url: 'https://jmc-test-fullstack-js-4le5.vercel.app/api',
         description: 'Development Server',
       },
     ],
