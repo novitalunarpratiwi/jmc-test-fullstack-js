@@ -13,14 +13,26 @@ const tunjanganRoute = require('./routes/tunjanganRoute');
 
 const app = express();
 
+// Security & Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
+// Root route (agar saat membuka URL utama tidak error 404)
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'Backend JMC API is running on Vercel'
+  });
+});
 
 // Health check route
 app.get('/api/health', (req, res) => {

@@ -4,7 +4,7 @@ const prisma = require('./configs/prisma');
 
 const PORT = process.env.PORT || 5000;
 
-// Jalankan server HANYA jika bukan di environment Vercel / serverless
+// Jalankan server HANYA saat di lokal (non-serverless)
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   const server = app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
@@ -19,5 +19,5 @@ if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   });
 }
 
-// Wajib diekspor untuk Vercel
+// Export untuk serverless Vercel
 module.exports = app;
