@@ -10,6 +10,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'https://jmc-test-fullstack-js-4le5.vercel.app/api',
       appName: process.env.APP_NAME,
       appClient: process.env.APP_CLIENT,
       // recaptchaSiteKey dimatikan agar tidak error
